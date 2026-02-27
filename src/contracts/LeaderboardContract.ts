@@ -8,54 +8,62 @@ import {
     Selector,
     StoredU256,
 } from '@btc-vision/btc-runtime/runtime';
-
+import { SafeMath } from '@btc-vision/btc-runtime/runtime/types/SafeMath';
 import { u256 } from '@btc-vision/as-bignum/assembly';
 import { ScoreSubmittedEvent } from '../events/ScoreSubmittedEvent';
+
+// 32-byte zero subPointer for global storage slots
+const ZERO_PTR: Uint8Array = new Uint8Array(32);
 
 @final
 export class LeaderboardContract extends OP_NET {
 
-    private topScore!: StoredU256;
-    private totalPlayers!: StoredU256;
+    private readonly topScore:     StoredU256 = new StoredU256(2, ZERO_PTR);
+    private readonly totalPlayers: StoredU256 = new StoredU256(3, ZERO_PTR);
 
-    public onDeploy(): void {
-        this.topScore = new StoredU256(2, new Uint8Array(0));
-        this.totalPlayers = new StoredU256(3, new Uint8Array(0));
-        Blockchain.log('Leaderboard deployed!');
+    public constructor() {
+        super();
     }
 
-    public execute(method: Selector, calldata: Calldata): BytesWriter {
-        const SUBMIT_SCORE = encodeSelector('submitScore(uint256)');
-        const GET_SCORE = encodeSelector('getScore(address)');
-        const GET_TOP_SCORE = encodeSelector('getTopScore()');
-        const GET_TOTAL_PLAYERS = encodeSelector('getTotalPlayers()');
+    public override onDeployment(_calldata: Calldata): void {
+        Blockchain.log('OpNet-Trivia Leaderboard deployed!');
+    }
 
+    public override execute(method: Selector, calldata: Calldata): BytesWriter {
         switch (method) {
-            case SUBMIT_SCORE: return this.submitScore(calldata);
-            case GET_SCORE: return this.getScore(calldata);
-            case GET_TOP_SCORE: return this.getTopScore();
-            case GET_TOTAL_PLAYERS: return this.getTotalPlayers();
-            default: return new BytesWriter(0); // fallback
+            case encodeSelector('submitScore(uint256)'):
+                return this.submitScore(calldata);
+            case encodeSelector('getScore(address)'):
+                return this.getScore(calldata);
+            case encodeSelector('getTopScore()'):
+                return this.getTopScore();
+            case encodeSelector('getTotalPlayers()'):
+                return this.getTotalPlayers();
+            default:
+                return super.execute(method, calldata);
         }
     }
 
     private submitScore(calldata: Calldata): BytesWriter {
-        const caller: Address = Blockchain.tx.sender;
-        const newScore: u256 = calldata.readU256();
+        const caller:   Address    = Blockchain.tx.sender;
+        const newScore: u256       = calldata.readU256();
 
-        const playerPointer: u16 = 1;
-        const subPtr: Uint8Array = Uint8Array.wrap(caller.buffer);
-
-        const current = new StoredU256(playerPointer, subPtr);
-        const isNew: bool = current.value == u256.Zero;
+        // Address extends Uint8Array directly — use it as subPointer
+        const current:  StoredU256 = new StoredU256(1, caller as Uint8Array);
+        const isNew:    bool       = u256.eq(current.value, u256.Zero);
 
         const writer = new BytesWriter(1);
 
-        if (newScore > current.value) {
+        if (u256.gt(newScore, current.value)) {
             current.value = newScore;
 
-            if (newScore > this.topScore.value) this.topScore.value = newScore;
-            if (isNew) this.totalPlayers.value = u256.add(this.totalPlayers.value, u256.One);
+            if (u256.gt(newScore, this.topScore.value)) {
+                this.topScore.value = newScore;
+            }
+
+            if (isNew) {
+                this.totalPlayers.value = SafeMath.add(this.totalPlayers.value, u256.One);
+            }
 
             this.emitEvent(new ScoreSubmittedEvent(caller, newScore));
             writer.writeBoolean(true);
@@ -67,11 +75,9 @@ export class LeaderboardContract extends OP_NET {
     }
 
     private getScore(calldata: Calldata): BytesWriter {
-        const addr: Address = calldata.readAddress();
-        const subPtr: Uint8Array = Uint8Array.wrap(addr.buffer);
-        const stored = new StoredU256(1, subPtr);
-
-        const writer = new BytesWriter(32);
+        const addr:   Address    = calldata.readAddress();
+        const stored: StoredU256 = new StoredU256(1, addr as Uint8Array);
+        const writer             = new BytesWriter(32);
         writer.writeU256(stored.value);
         return writer;
     }
