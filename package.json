@@ -1,0 +1,21 @@
+{
+  "name": "opnet-trivia",
+  "version": "1.0.0",
+  "description": "OP_NET Trivia Game Leaderboard Smart Contract on Bitcoin",
+  "type": "module",
+  "scripts": {
+    "build": "gulp build",
+    "build:debug": "gulp build:debug",
+    "clean": "gulp clean"
+  },
+  "dependencies": {
+    "@btc-vision/btc-runtime": "latest"
+  },
+  "devDependencies": {
+    "assemblyscript": "latest",
+    "gulp": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=21.0.0"
+  }
+}

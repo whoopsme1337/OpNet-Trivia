@@ -1,0 +1,14 @@
+{
+  "extends": "assemblyscript/std/assembly.json",
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "./build"
+  }
+}
