@@ -9,7 +9,8 @@
     "clean": "gulp clean"
   },
   "dependencies": {
-    "@btc-vision/btc-runtime": "latest"
+    "@btc-vision/btc-runtime": "latest",
+    "@btc-vision/as-bignum": "latest"
   },
   "devDependencies": {
     "assemblyscript": "latest",

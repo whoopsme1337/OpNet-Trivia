@@ -8,18 +8,16 @@
       "optimizeLevel": 3,
       "shrinkLevel": 2,
       "converge": false,
-      "noAssert": false
+      "runtime": "full",
+      "use": ["abort="]
     },
     "debug": {
       "outFile": "build/contract_debug.wasm",
       "textFile": "build/contract_debug.wat",
       "sourceMap": true,
-      "debug": true
+      "debug": true,
+      "runtime": "stub",
+      "use": ["abort="]
     }
-  },
-  "options": {
-    "bindings": "esm",
-    "runtime": "stub",
-    "exportRuntime": false
   }
 }

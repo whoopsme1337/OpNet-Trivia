@@ -1,7 +1,6 @@
-/**
- * OpNet-Trivia — Contract Entry Point
- *
- * Exports the leaderboard contract class.
- * The OP_NET runtime calls execute() on the exported class.
- */
-export { LeaderboardContract as default } from './contracts/LeaderboardContract';
+import { LeaderboardContract } from './contracts/LeaderboardContract';
+
+export function start(): void {
+    // Initialize contract (required by OP_NET)
+    new LeaderboardContract();
+}

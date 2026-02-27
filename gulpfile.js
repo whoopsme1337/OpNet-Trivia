@@ -70,6 +70,7 @@ export function build(done) {
         '--optimizeLevel', '3',
         '--shrinkLevel',   '2',
         '--runtime',       'stub',
+        '--use',           'abort=',
     ].join(' ');
 
     console.log('Building release contract (optimized)...');
@@ -106,7 +107,7 @@ export function buildDebug(done) {
         '--textFile', `"${join(BUILD_DIR, 'contract_debug.wat')}"`,
         '--sourceMap',
         '--debug',
-        '--runtime', 'stub',
+        '--runtime', 'full',
     ].join(' ');
 
     console.log('Building debug contract...');
