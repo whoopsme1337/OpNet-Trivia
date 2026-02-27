@@ -26,9 +26,9 @@ export class LeaderboardContract extends OP_NET {
         super();
     }
 
-    public override onDeployment(_calldata: Calldata): void {
-        Blockchain.log('OpNet-Trivia Leaderboard deployed!');
-    }
+    public override onDeploy(): void {
+    Blockchain.log('OpNet-Trivia Leaderboard deployed!');
+}
 
     public override execute(method: Selector, calldata: Calldata): BytesWriter {
         switch (method) {
